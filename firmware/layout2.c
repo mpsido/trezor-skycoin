@@ -206,6 +206,13 @@ void layoutScreensaver(void)
 	oledRefresh();
 }
 
+void layoutRawMessage(char* msg)
+{
+	oledClear();
+	oledDrawStringCenter(OLED_HEIGHT/2, msg, FONT_STANDARD);
+	oledRefresh();
+}
+
 void layoutHome(void)
 {
 	if (layoutLast == layoutHome || layoutLast == layoutScreensaver) {

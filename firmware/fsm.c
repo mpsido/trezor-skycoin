@@ -318,6 +318,15 @@ void fsm_msgGetFeatures(GetFeatures *msg)
 	msg_write(MessageType_MessageType_Features, resp);
 }
 
+void fsm_msgSkycoinAddress(SkycoinAddress* msg)
+{
+	RESP_INIT(Success);
+	layoutRawMessage(msg->seed);
+	resp->has_message = true;
+	memcpy(&(resp->message), &(msg->seed), sizeof(resp->message));
+	msg_write(MessageType_MessageType_Success, resp);
+}
+
 void fsm_msgPing(Ping *msg)
 {
 	RESP_INIT(Success);

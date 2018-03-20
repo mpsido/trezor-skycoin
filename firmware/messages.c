@@ -263,7 +263,7 @@ void msg_read_common(char type, const uint8_t *buf, int len)
 
 		fields = MessageFields(type, 'i', msg_id);
 		if (!fields) { // unknown message
-			fsm_sendFailure(FailureType_Failure_UnexpectedMessage, _("Unknown message"));
+			fsm_sendFailure(FailureType_Failure_UnexpectedMessage, _("Unknown message read_common"));
 			return;
 		}
 		if (msg_size > MSG_IN_SIZE) { // message is too big :(
@@ -367,7 +367,7 @@ void msg_read_tiny(const uint8_t *buf, int len)
 			msg_tiny_id = 0xFFFF;
 		}
 	} else {
-		fsm_sendFailure(FailureType_Failure_UnexpectedMessage, _("Unknown message"));
+		fsm_sendFailure(FailureType_Failure_UnexpectedMessage, _("Unknown message read_tiny"));
 		msg_tiny_id = 0xFFFF;
 	}
 }

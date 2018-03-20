@@ -16,6 +16,7 @@ ApplySettings.label			max_size:33
 ApplySettings.homescreen		max_size:1024
 
 Ping.message				max_size:256
+SkycoinAddress.seed			max_size:256
 
 Success.message				max_size:256
 
