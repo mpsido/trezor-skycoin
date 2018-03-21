@@ -55,6 +55,7 @@
 #include "nem2.h"
 #include "rfc6979.h"
 #include "gettext.h"
+#include "skycoin_crypto.h"
 
 // message methods
 
@@ -320,10 +321,14 @@ void fsm_msgGetFeatures(GetFeatures *msg)
 
 void fsm_msgSkycoinAddress(SkycoinAddress* msg)
 {
+    uint8_t seckey[32] = {0};
+    uint8_t pubkey[33] = {0};
+
 	RESP_INIT(Success);
-	layoutRawMessage(msg->seed);
+	generate_deterministic_key_pair_iterator(msg->seed, seckey, pubkey);
+	tohex(resp->message, pubkey, 33);
+	layoutRawMessage(resp->message);
 	resp->has_message = true;
-	memcpy(&(resp->message), &(msg->seed), sizeof(resp->message));
 	msg_write(MessageType_MessageType_Success, resp);
 }
 
