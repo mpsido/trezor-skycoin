@@ -325,9 +325,33 @@ void fsm_msgSkycoinAddress(SkycoinAddress* msg)
     uint8_t pubkey[33] = {0};
 
 	RESP_INIT(Success);
-	generate_deterministic_key_pair_iterator(msg->seed, seckey, pubkey);
-	tohex(resp->message, pubkey, 33);
-	layoutRawMessage(resp->message);
+	if (msg->has_address_type)
+	{
+    	char address[256] = {0};
+    	size_t size_address = sizeof(address);
+		generate_deterministic_key_pair_iterator(msg->seed, seckey, pubkey);
+		switch (msg->address_type)
+		{
+			case SkycoinAddressType_AddressTypeSkycoin:
+				layoutRawMessage("Skycoin address");
+    			generate_base58_address_from_pubkey(pubkey, address, &size_address);
+				memcpy(resp->message, address, size_address);
+				break;
+			case SkycoinAddressType_AddressTypeBitcoin:
+				layoutRawMessage("Bitcoin address");
+				generate_bitcoin_address_from_pubkey(pubkey, address, &size_address);
+				memcpy(resp->message, address, size_address);
+				break;
+			default:
+				layoutRawMessage("Unknown address type");
+				break;
+		}
+	}
+	else {
+		generate_deterministic_key_pair_iterator(msg->seed, seckey, pubkey);
+		tohex(resp->message, pubkey, 33);
+		layoutRawMessage(resp->message);
+	}
 	resp->has_message = true;
 	msg_write(MessageType_MessageType_Success, resp);
 }
