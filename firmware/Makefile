@@ -84,7 +84,7 @@ OBJS += ../vendor/nanopb/pb_encode.o
 OBJS += protob/messages.pb.o
 OBJS += protob/types.pb.o
 
-OBJS += ../vendor/skycoin-wallet/skycoin_crypto.o
+OBJS += ../vendor/skycoin-crypto/skycoin_crypto.o
 
 include ../Makefile.include
 
