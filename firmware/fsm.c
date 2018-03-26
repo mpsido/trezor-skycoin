@@ -319,6 +319,31 @@ void fsm_msgGetFeatures(GetFeatures *msg)
 	msg_write(MessageType_MessageType_Features, resp);
 }
 
+void fsm_msgSkycoinCheckMessageSignature(SkycoinCheckMessageSignature* msg)
+{
+	uint8_t sign[65];
+    size_t size_sign = sizeof(sign);
+    char pubkeybase58[36];
+    uint8_t pubkey[33] = {0};
+
+	RESP_INIT(Success);
+	size_sign = sizeof(sign);
+    b58tobin(sign, &size_sign, msg->signature);
+    recover_pubkey_from_signed_message(msg->message, sign, pubkey);
+    size_sign = sizeof(pubkeybase58);
+    generate_base58_address_from_pubkey(pubkey, pubkeybase58, &size_sign);
+	if (memcmp(pubkeybase58, msg->address, size_sign) == 0)
+	{
+		layoutRawMessage("Verification success");
+	}
+	else {
+		layoutRawMessage("Wrong signature");
+	}
+	memcpy(resp->message, pubkeybase58, size_sign);
+	resp->has_message = true;
+	msg_write(MessageType_MessageType_Success, resp);
+}
+
 void fsm_msgSkycoinAddress(SkycoinAddress* msg)
 {
     uint8_t seckey[32] = {0};
