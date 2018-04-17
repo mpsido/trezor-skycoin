@@ -325,21 +325,50 @@ void fsm_msgSkycoinCheckMessageSignature(SkycoinCheckMessageSignature* msg)
     size_t size_sign = sizeof(sign);
     char pubkeybase58[36];
     uint8_t pubkey[33] = {0};
+    uint8_t digest[32] = {0};
 
-	RESP_INIT(Success);
-	size_sign = sizeof(sign);
+    RESP_INIT(Success);
+    compute_sha256sum(msg->message, digest, strlen(msg->message));
+    size_sign = sizeof(sign);
     b58tobin(sign, &size_sign, msg->signature);
-    recover_pubkey_from_signed_message(msg->message, sign, pubkey);
+    recover_pubkey_from_signed_message((char*)digest, sign, pubkey);
     size_sign = sizeof(pubkeybase58);
     generate_base58_address_from_pubkey(pubkey, pubkeybase58, &size_sign);
-	if (memcmp(pubkeybase58, msg->address, size_sign) == 0)
+    if (memcmp(pubkeybase58, msg->address, size_sign) == 0)
+    {
+        layoutRawMessage("Verification success");
+    }
+    else {
+        layoutRawMessage("Wrong signature");
+    }
+    memcpy(resp->message, pubkeybase58, size_sign);
+    resp->has_message = true;
+    msg_write(MessageType_MessageType_Success, resp);
+}
+
+void fsm_msgSkycoinSignMessage(SkycoinSignMessage* msg)
+{
+    uint8_t seckey[32] = {0};
+	uint8_t digest[32] = {0};
+    uint8_t signature[65];
+	char sign58[90] = {0};
+	int res = 0;
+	RESP_INIT(Success);
+    size_t size_seckey = sizeof(seckey);
+    b58tobin(seckey, &size_seckey, msg->secretKey);
+    compute_sha256sum(msg->message, digest, strlen(msg->message));
+    res = ecdsa_skycoin_sign(1, seckey, digest, signature);
+	if (res == 0)
 	{
-		layoutRawMessage("Verification success");
+		layoutRawMessage("Signature success");
 	}
-	else {
-		layoutRawMessage("Wrong signature");
+	else
+	{
+		layoutRawMessage("Signature failed");
 	}
-	memcpy(resp->message, pubkeybase58, size_sign);
+	size_seckey = sizeof(sign58);
+    b58enc(sign58, &size_seckey, signature, sizeof(signature));
+	memcpy(resp->message, sign58, size_seckey);
 	resp->has_message = true;
 	msg_write(MessageType_MessageType_Success, resp);
 }
